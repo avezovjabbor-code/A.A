@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Football Championship 2026 - Desktop Arena</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22><text y=%2222%22 font-size=%2220%22>⚽</text></svg>">
+</head>
+<body>
+    <!-- Background atmospheric glow -->
+    <div class="bg-glow-container"></div>
+
+    <!-- Top Broadcast Scoreboard Header -->
+    <header class="broadcast-header">
+        <div class="brand-section">
+            <span class="logo-ball">⚽</span>
+            <div>
+                <h1 class="brand-title">PRO FOOTBALL CHAMPIONSHIP</h1>
+            </div>
+            <div class="broadcast-badge">
+                <span class="pulse-dot"></span>
+                <span>JONLI EFIR</span>
+            </div>
+        </div>
+
+        <!-- TV Broadcast Scoreboard Pod -->
+        <div class="scoreboard-pod" id="scoreboardPod">
+            <div class="team-hud">
+                <div class="team-badge-color" id="homeBadge" style="background-color: #ffffff;"></div>
+                <span class="team-name-hud" id="homeTeamName">RMA</span>
+            </div>
+            <div class="score-display">
+                <span id="homeScore">0</span> - <span id="awayScore">0</span>
+            </div>
+            <div class="team-hud">
+                <span class="team-name-hud" id="awayTeamName">BAR</span>
+                <div class="team-badge-color" id="awayBadge" style="background-color: #a50044;"></div>
+            </div>
+            <div class="clock-pod">
+                <span>⏱</span>
+                <span id="matchClock">00:00</span>
+            </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="header-actions">
+            <button class="btn-icon" id="btnSoundToggle" title="Ovozni yoqish / o'chirish">🔊</button>
+            <button class="btn-icon" id="btnWeatherToggle" title="Ob-havoni o'zgartirish (Tun/Kun/Yomg'ir)">🌙</button>
+            <button class="btn-icon" id="btnHelp" title="Boshqaruv tugmalari">❓</button>
+            <button class="btn-pill" id="btnSettings">⚙️ Sozlamalar & Jamoalar</button>
+        </div>
+    </header>
+
+    <!-- Main Playing Arena -->
+    <main class="main-arena">
+        <div id="canvasContainer">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- Bottom Game Mode Selector -->
+        <div class="mode-bar">
+            <button class="mode-btn active" id="btnModeMatch">⚽ Klassik O'yin (5v5)</button>
+            <button class="mode-btn" id="btnModePenalty">🥅 Penaltilar Seriyasi</button>
+            <button class="mode-btn" id="btnModeFreeKick">🎯 Jarima To'plari</button>
+        </div>
+
+        <!-- Desktop Quick Controls Guide (Bottom Left) -->
+        <div class="control-guide-badge">
+            <span>🎮 <span class="key-badge">WASD</span> Yurish</span>
+            <span>⚡ <span class="key-badge">J</span> Chopish</span>
+            <span>👟 <span class="key-badge">K</span> Pas / Podkat</span>
+            <span>🚀 <span class="key-badge">L</span> Kuchli Zarba</span>
+            <span>🔄 <span class="key-badge">Bo'shliq</span> Almashtirish</span>
+        </div>
+    </main>
+
+    <!-- SETTINGS & TEAM SELECTION MODAL -->
+    <div class="modal-overlay hidden" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">O'yin Sozlamalari & Jamoalar</h2>
+                <button class="close-btn" id="btnCloseSettings">✕</button>
+            </div>
+
+            <div style="margin-bottom: 12px; font-weight: 700; font-size: 14px; color: var(--accent-cyan);">
+                Sizning Jamoangiz (1-O'yinchi):
+            </div>
+            <div class="team-grid" id="homeTeamGrid">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div style="margin-bottom: 12px; font-weight: 700; font-size: 14px; color: var(--accent-gold);">
+                Raqib Jamoa (2-O'yinchi / AI):
+            </div>
+            <div class="team-grid" id="awayTeamGrid">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="setting-row">
+                <span class="setting-label">O'yin Rejimi</span>
+                <div class="setting-segmented">
+                    <button class="segmented-btn active" id="btnModeSingle">1-O'yinchi (AI qarshi)</button>
+                    <button class="segmented-btn" id="btnModeTwoPlayer">2-O'yinchi (Do'st bilan)</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <span class="setting-label">Qiyinchilik Darajasi</span>
+                <div class="setting-segmented">
+                    <button class="segmented-btn" data-diff="easy">Oson</button>
+                    <button class="segmented-btn active" data-diff="medium">O'rtacha</button>
+                    <button class="segmented-btn" data-diff="hard">Qiyin (Pro)</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <span class="setting-label">O'yin Vaqti</span>
+                <div class="setting-segmented">
+                    <button class="segmented-btn" data-time="60">1 daqiqa</button>
+                    <button class="segmented-btn active" data-time="180">3 daqiqa</button>
+                    <button class="segmented-btn" data-time="300">5 daqiqa</button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-primary" id="btnApplySettings">O'yinni Boshlash</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HELP / CONTROLS MODAL -->
+    <div class="modal-overlay hidden" id="helpModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 class="modal-title">Desktop Boshqaruv Qo'llanmasi</h2>
+                <button class="close-btn" id="btnCloseHelp">✕</button>
+            </div>
+
+            <h3 style="color: var(--accent-cyan); font-size: 15px; margin-top: 8px;">1-O'YINCHI (Asosiy Boshqaruv):</h3>
+            <table class="controls-table">
+                <tr>
+                    <th>Harakat</th>
+                    <th>Klaviatura Tugmalari</th>
+                </tr>
+                <tr>
+                    <td>Harakatlanish / Yo'nalish</td>
+                    <td><span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span> yoki <span class="key-badge">Strelkalar</span></td>
+                </tr>
+                <tr>
+                    <td>Tezkor Chopish (Sprint)</td>
+                    <td><span class="key-badge">Shift</span> yoki <span class="key-badge">J</span></td>
+                </tr>
+                <tr>
+                    <td>Pas berish / Podkat (Tackle)</td>
+                    <td><span class="key-badge">K</span> yoki <span class="key-badge">X</span></td>
+                </tr>
+                <tr>
+                    <td>Kuchli Zarba (Ushlab turing)</td>
+                    <td><span class="key-badge">L</span> yoki <span class="key-badge">C</span></td>
+                </tr>
+                <tr>
+                    <td>Baland Pas / Oshirib tashlash</td>
+                    <td><span class="key-badge">E</span> yoki <span class="key-badge">I</span></td>
+                </tr>
+                <tr>
+                    <td>Yaqin o'yinchiga o'tish</td>
+                    <td><span class="key-badge">Bo'shliq (Space)</span></td>
+                </tr>
+                <tr>
+                    <td>Pauza (To'xtatish)</td>
+                    <td><span class="key-badge">ESC</span> yoki <span class="key-badge">P</span></td>
+                </tr>
+            </table>
+
+            <h3 style="color: var(--accent-gold); font-size: 15px; margin-top: 18px;">2-O'YINCHI (Mahalliy 2-kishilik PvP):</h3>
+            <table class="controls-table">
+                <tr>
+                    <th>Harakat</th>
+                    <th>Tugmalar</th>
+                </tr>
+                <tr>
+                    <td>Harakatlanish</td>
+                    <td><span class="key-badge">↑</span> <span class="key-badge">←</span> <span class="key-badge">↓</span> <span class="key-badge">→</span> Strelkalar</td>
+                </tr>
+                <tr>
+                    <td>Chopish</td>
+                    <td><span class="key-badge">Numpad 1</span> yoki <span class="key-badge">,</span> (Vergul)</td>
+                </tr>
+                <tr>
+                    <td>Pas / Podkat</td>
+                    <td><span class="key-badge">Numpad 2</span> yoki <span class="key-badge">.</span> (Nuqta)</td>
+                </tr>
+                <tr>
+                    <td>Zarba</td>
+                    <td><span class="key-badge">Numpad 3</span> yoki <span class="key-badge">/</span> (Slash)</td>
+                </tr>
+            </table>
+
+            <div class="modal-actions">
+                <button class="btn-primary" id="btnUnderstandHelp">Tushunarli</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAUSE MODAL -->
+    <div class="modal-overlay hidden" id="pauseModal">
+        <div class="modal-card" style="max-width: 400px; text-align: center;">
+            <h2 class="modal-title" style="margin-bottom: 20px;">O'YIN TO'XTATILDI</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-primary" id="btnResume">Davom ettirish</button>
+                <button class="btn-secondary" id="btnRestartMatch">Boshidan boshlash</button>
+                <button class="btn-secondary" id="btnOpenSettingsFromPause">Sozlamalar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER MODAL -->
+    <div class="modal-overlay hidden" id="gameOverModal">
+        <div class="modal-card winner-card" style="max-width: 480px;">
+            <div class="trophy-icon">🏆</div>
+            <h2 class="modal-title" id="winnerText">G'ALABA!</h2>
+            <div class="final-score" id="finalScoreText">3 - 1</div>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Ushbu o'yinda shiddatli kurash kechdi!</p>
+            <div class="modal-actions">
+                <button class="btn-primary" id="btnPlayAgain">Yana O'ynash</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/teams.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
